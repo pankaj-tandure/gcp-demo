@@ -1,0 +1,4 @@
+com/java/gcp_demo/controller/ProductController.class
+com/java/gcp_demo/model/Product.class
+com/java/gcp_demo/repository/ProductRepository.class
+com/java/gcp_demo/GcpDemoApplication.class
