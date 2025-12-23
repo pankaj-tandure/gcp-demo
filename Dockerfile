@@ -6,8 +6,9 @@ WORKDIR /app
 # This allows Docker to cache dependencies if the pom.xml hasn't changed
 COPY mvnw .
 COPY .mvn .mvn
+COPY pom.xml .
+
 RUN chmod +x ./mvnw
-COPY mvnw pom.xml ./
 
 # 2. Grant execution permissions to the wrapper
 RUN chmod +x mvnw
