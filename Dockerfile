@@ -8,8 +8,6 @@ COPY mvnw .
 # COPY .mvn .mvn
 COPY pom.xml .
 
-RUN chmod +x ./mvnw
-
 # 2. Grant execution permissions to the wrapper
 RUN chmod +x mvnw
 
