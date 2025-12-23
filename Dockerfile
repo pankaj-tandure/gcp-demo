@@ -5,7 +5,7 @@ WORKDIR /app
 # 1. Copy the Maven wrapper and pom.xml first
 # This allows Docker to cache dependencies if the pom.xml hasn't changed
 COPY mvnw .
-COPY .mvn .mvn
+# COPY .mvn .mvn
 COPY pom.xml .
 
 RUN chmod +x ./mvnw
