@@ -4,12 +4,12 @@ WORKDIR /app
 
 # 1. Copy the Maven wrapper and pom.xml first
 # This allows Docker to cache dependencies if the pom.xml hasn't changed
-COPY mvnw .
-# COPY .mvn .mvn
-COPY pom.xml .
+
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
 
 # 2. Grant execution permissions to the wrapper
-RUN chmod +x mvnw
+RUN chmod +x ./mvnw
 
 # 3. Download dependencies (optional but recommended for caching)
 RUN ./mvnw dependency:go-offline
