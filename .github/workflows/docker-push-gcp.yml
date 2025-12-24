@@ -26,7 +26,7 @@ jobs:
         with:
           token_format: 'access_token'
           service_account: '${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}'
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
       
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
