@@ -24,8 +24,10 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
+          token_format: 'access_token'
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          access_token_scopes: 'www.googleapis.com' # Ensure this is present
       
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
