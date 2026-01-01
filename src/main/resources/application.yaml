@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://google/demo_db?cloudSqlInstance=demo-postgres&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+    url: jdbc:postgresql://google/demo_db?cloudSqlInstance=chrome-axe-482106-m1:us-central1:demo-postgres&socketFactory=com.google.cloud.sql.postgres.SocketFactory
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
