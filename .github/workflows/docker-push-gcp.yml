@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  SERVICE_NAME: gcp-demo-service
+  REPOSITORY_NAME: my-repo
+  IMAGE_NAME: gcp-demo-service
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -17,6 +22,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 3️⃣ Build JAR
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -24,23 +40,36 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          token_format: 'access_token'
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          access_token_scopes: 'www.googleapis.com' # Ensure this is present
-      
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      # 5️⃣ Set up gcloud
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      # 6️⃣ Configure Docker for Artifact Registry
       - name: Docker Auth
         run: gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev --quiet
 
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}/product-service:1.0,
-                ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}/product-service:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # 7️⃣ Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}/product-service:${{ github.sha }} .
+
+      # 8️⃣ Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push \
+            ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}/product-service:${{ github.sha }}
+
+      # 9️⃣ Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy gcp-demo \
+            --image ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}/product-service:${{ github.sha }} \
+            --region ${{ secrets.GCP_ARTIFACT_REGISTRY_LOCATION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --memory 512Mi \
+            --cpu 1
