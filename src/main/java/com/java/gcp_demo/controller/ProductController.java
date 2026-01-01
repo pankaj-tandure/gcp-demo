@@ -20,6 +20,10 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "Welcome to GCP deployment demo !!";
+    }
     @GetMapping("/all")
     public List<Product> getAllProducts() {
 
